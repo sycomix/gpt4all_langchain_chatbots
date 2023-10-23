@@ -26,33 +26,26 @@ llm = GPT4All(model=gpt4all_path, callback_manager=callback_manager, verbose=Tru
 
 # Split text 
 def split_chunks(sources):
-    chunks = []
     splitter = RecursiveCharacterTextSplitter(chunk_size=256, chunk_overlap=32)
-    for chunk in splitter.split_documents(sources):
-        chunks.append(chunk)
-    return chunks
+    return list(splitter.split_documents(sources))
 
 
 def create_index(chunks):
     texts = [doc.page_content for doc in chunks]
     metadatas = [doc.metadata for doc in chunks]
 
-    search_index = FAISS.from_texts(texts, embeddings, metadatas=metadatas)
-
-    return search_index
+    return FAISS.from_texts(texts, embeddings, metadatas=metadatas)
 
 
 def similarity_search(query, index):
     matched_docs = index.similarity_search(query, k=4)
-    sources = []
-    for doc in matched_docs:
-        sources.append(
-            {
-                "page_content": doc.page_content,
-                "metadata": doc.metadata,
-            }
-        )
-
+    sources = [
+        {
+            "page_content": doc.page_content,
+            "metadata": doc.metadata,
+        }
+        for doc in matched_docs
+    ]
     return matched_docs, sources
 
 

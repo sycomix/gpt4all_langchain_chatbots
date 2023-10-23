@@ -25,11 +25,8 @@ def load_documents() -> List:
     return loader.load()
 
 def split_chunks(sources: List) -> List:
-    chunks = []
     splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=32)
-    for chunk in splitter.split_documents(sources):
-        chunks.append(chunk)
-    return chunks
+    return list(splitter.split_documents(sources))
 
 def generate_index(chunks: List, embeddings: LlamaCppEmbeddings) -> FAISS:
     texts = [doc.page_content for doc in chunks]
